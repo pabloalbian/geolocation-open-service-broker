@@ -18,7 +18,7 @@ public class GeolocationService {
                 "f5e235c5-aaed-44e1-aaea-5c7bac221294",
                 "mockDashboardUrl.com/"
         ));
-    }};;
+    }};
 
     private Map<String, GeolocationServiceBinding> geolocationServiceBindings = new HashMap<>();
 

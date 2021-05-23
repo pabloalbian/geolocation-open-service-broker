@@ -6,3 +6,8 @@ geolocation:
   base-url: "examplebaseurl.com/"
   dashboard:
     base-url: "exampledashboardbaseurl.com/"
+spring:
+  cloud:
+    openservicebroker:
+      api-version: 2.15
+      api-version-check-enabled: true

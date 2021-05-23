@@ -19,7 +19,6 @@ public class GeolocationServiceInstanceService implements ServiceInstanceService
         this.geolocationService = geolocationService;
     }
 
-    // Todo: Solve deserialization issue
     @Override
     public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
         return Mono.just(request.getServiceInstanceId())
