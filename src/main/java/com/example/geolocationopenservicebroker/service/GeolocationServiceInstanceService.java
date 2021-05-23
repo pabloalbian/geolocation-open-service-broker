@@ -1,6 +1,7 @@
 package com.example.geolocationopenservicebroker.service;
 
 import com.example.geolocationopenservicebroker.geolocation.GeolocationService;
+import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
 import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
 import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest;
@@ -19,7 +20,6 @@ public class GeolocationServiceInstanceService implements ServiceInstanceService
     }
 
     // Todo: Solve deserialization issue
-    // Todo: Implement some logic in GeoLocationService
     @Override
     public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
         return Mono.just(request.getServiceInstanceId())
@@ -28,16 +28,16 @@ public class GeolocationServiceInstanceService implements ServiceInstanceService
                                 .flatMap(exists -> {
                                     if (exists) {
                                         return geolocationService.getServiceInstance(instanceId)
-                                                .flatMap(mailServiceInstance -> Mono.just(responseBuilder
+                                                .flatMap(geolocationServiceInstance -> Mono.just(responseBuilder
                                                         .instanceExisted(true)
-                                                        .dashboardUrl("ExampleUrlInstanceExisted.com")
+                                                        .dashboardUrl(geolocationServiceInstance.getDashboardUrl())
                                                         .build()));
                                     } else {
                                         return geolocationService.createServiceInstance(
                                                 instanceId, request.getServiceDefinitionId(), request.getPlanId())
-                                                .flatMap(mailServiceInstance -> Mono.just(responseBuilder
+                                                .flatMap(geolocationServiceInstance -> Mono.just(responseBuilder
                                                         .instanceExisted(false)
-                                                        .dashboardUrl("ExampleUrlInstanceNotExisted.com")
+                                                        .dashboardUrl(geolocationServiceInstance.getDashboardUrl())
                                                         .build()));
                                     }
                                 })));
@@ -45,6 +45,15 @@ public class GeolocationServiceInstanceService implements ServiceInstanceService
 
     @Override
     public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest) {
-        return null;
+        return Mono.just(deleteServiceInstanceRequest.getServiceInstanceId())
+                .flatMap(instanceId -> geolocationService.serviceInstanceExistsById(instanceId)
+                        .flatMap(exists -> {
+                            if (exists) {
+                                return geolocationService.deleteServiceInstanceById(instanceId)
+                                        .thenReturn(DeleteServiceInstanceResponse.builder().build());
+                            } else {
+                                return Mono.error(new ServiceInstanceDoesNotExistException(instanceId));
+                            }
+                        }));
     }
 }

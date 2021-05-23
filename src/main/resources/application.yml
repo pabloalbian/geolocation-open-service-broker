@@ -1,4 +1,8 @@
-spring:
-  cloud:
-    openservicebroker:
-      base-path: /geolocation-broker
+#spring:
+#  cloud:
+#    openservicebroker:
+#      base-path: /geolocation-broker
+geolocation:
+  base-url: "examplebaseurl.com/"
+  dashboard:
+    base-url: "exampledashboardbaseurl.com/"
