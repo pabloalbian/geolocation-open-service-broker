@@ -9,5 +9,4 @@ geolocation:
 spring:
   cloud:
     openservicebroker:
-      api-version: 2.15
-      api-version-check-enabled: true
+      api-version: 2.14

@@ -1,6 +1,7 @@
 package com.example.geolocationopenservicebroker.config;
 
 import org.springframework.cloud.servicebroker.model.catalog.Catalog;
+import org.springframework.cloud.servicebroker.model.catalog.MaintenanceInfo;
 import org.springframework.cloud.servicebroker.model.catalog.Plan;
 import org.springframework.cloud.servicebroker.model.catalog.ServiceDefinition;
 import org.springframework.context.annotation.Bean;
@@ -15,6 +16,7 @@ public class ServiceCatalogConfiguration {
                 .id("f5e235c5-aaed-44e1-aaea-5c7bac221294")
                 .name("geolocation-basic-plan")
                 .description("Geolocation Basic Plan")
+                .maintenanceInfo(new MaintenanceInfo("0.0.1", "First version"))
                 .free(true)
                 .build();
 
