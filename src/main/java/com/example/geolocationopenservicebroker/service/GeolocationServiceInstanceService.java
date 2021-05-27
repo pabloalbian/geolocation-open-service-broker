@@ -1,17 +1,14 @@
 package com.example.geolocationopenservicebroker.service;
 
+import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceResponseDto;
+import com.example.geolocationopenservicebroker.api.dto.DeleteServiceInstanceRequestDto;
 import com.example.geolocationopenservicebroker.geolocation.GeolocationService;
-import org.springframework.cloud.servicebroker.exception.ServiceInstanceDoesNotExistException;
-import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.instance.CreateServiceInstanceResponse;
-import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceRequest;
-import org.springframework.cloud.servicebroker.model.instance.DeleteServiceInstanceResponse;
-import org.springframework.cloud.servicebroker.service.ServiceInstanceService;
+import com.example.geolocationopenservicebroker.model.GeolocationServiceInstance;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 @Service
-public class GeolocationServiceInstanceService implements ServiceInstanceService {
+public class GeolocationServiceInstanceService {
 
     private final GeolocationService geolocationService;
 
@@ -19,40 +16,36 @@ public class GeolocationServiceInstanceService implements ServiceInstanceService
         this.geolocationService = geolocationService;
     }
 
-    @Override
-    public Mono<CreateServiceInstanceResponse> createServiceInstance(CreateServiceInstanceRequest request) {
-        return Mono.just(request.getServiceInstanceId())
-                .flatMap(instanceId -> Mono.just(CreateServiceInstanceResponse.builder())
-                        .flatMap(responseBuilder -> geolocationService.serviceInstanceExistsById(instanceId)
-                                .flatMap(exists -> {
-                                    if (exists) {
-                                        return geolocationService.getServiceInstance(instanceId)
-                                                .flatMap(geolocationServiceInstance -> Mono.just(responseBuilder
-                                                        .instanceExisted(true)
-                                                        .dashboardUrl(geolocationServiceInstance.getDashboardUrl())
-                                                        .build()));
-                                    } else {
-                                        return geolocationService.createServiceInstance(
-                                                instanceId, request.getServiceDefinitionId(), request.getPlanId())
-                                                .flatMap(geolocationServiceInstance -> Mono.just(responseBuilder
-                                                        .instanceExisted(false)
-                                                        .dashboardUrl(geolocationServiceInstance.getDashboardUrl())
-                                                        .build()));
-                                    }
-                                })));
+    public CreateServiceInstanceResponseDto createServiceInstance(CreateServiceInstanceRequestDto request) {
+        Boolean serviceInstanceExists = geolocationService.serviceInstanceExistsById(request.getServiceInstanceId());
+
+        if (serviceInstanceExists) {
+            GeolocationServiceInstance existingServiceBinding = geolocationService.getServiceInstance(
+                    request.getServiceInstanceId()
+            );
+            return new CreateServiceInstanceResponseDto(
+                    existingServiceBinding.getDashboardUrl(),
+                    true
+            );
+        } else {
+            GeolocationServiceInstance createdServiceInstance = geolocationService.createServiceInstance(
+                    request.getServiceInstanceId(), request.getServiceDefinitionId(), request.getPlanId());
+
+            return new CreateServiceInstanceResponseDto(
+                    createdServiceInstance.getDashboardUrl(),
+                    false
+            );
+        }
     }
 
-    @Override
-    public Mono<DeleteServiceInstanceResponse> deleteServiceInstance(DeleteServiceInstanceRequest deleteServiceInstanceRequest) {
-        return Mono.just(deleteServiceInstanceRequest.getServiceInstanceId())
-                .flatMap(instanceId -> geolocationService.serviceInstanceExistsById(instanceId)
-                        .flatMap(exists -> {
-                            if (exists) {
-                                return geolocationService.deleteServiceInstanceById(instanceId)
-                                        .thenReturn(DeleteServiceInstanceResponse.builder().build());
-                            } else {
-                                return Mono.error(new ServiceInstanceDoesNotExistException(instanceId));
-                            }
-                        }));
+    public String deleteServiceInstance(DeleteServiceInstanceRequestDto deleteServiceInstanceRequest) {
+        Boolean serviceInstanceExists = geolocationService.serviceInstanceExistsById(
+                deleteServiceInstanceRequest.getServiceInstanceId());
+
+        if (serviceInstanceExists) {
+            return geolocationService.deleteServiceInstanceById(deleteServiceInstanceRequest.getServiceInstanceId());
+        } else {
+            return null;
+        }
     }
 }

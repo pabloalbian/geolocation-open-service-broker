@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class GeolocationOpenServiceBrokerApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(GeolocationOpenServiceBrokerApplication.class, args);
+		SpringApplication.run(com.example.geolocationopenservicebroker.GeolocationOpenServiceBrokerApplication.class, args);
 	}
 
 }

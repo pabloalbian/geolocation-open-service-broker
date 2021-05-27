@@ -1,8 +1,9 @@
 package com.example.geolocationopenservicebroker.geolocation;
 
+import com.example.geolocationopenservicebroker.model.GeolocationServiceBinding;
+import com.example.geolocationopenservicebroker.model.GeolocationServiceInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +12,7 @@ import java.util.UUID;
 @Service
 public class GeolocationService {
 
-    private Map<String, GeolocationServiceInstance> geolocationServices = new HashMap<>() {{
+    private Map<String, GeolocationServiceInstance> geolocationServiceInstances = new HashMap<>() {{
         put("526387f9-bea6-4900-864a-7a82145d9082", new GeolocationServiceInstance(
                 "526387f9-bea6-4900-864a-7a82145d9082",
                 "6ca20b8a-a182-48a6-ab8e-bc462a2af1d1",
@@ -26,61 +27,57 @@ public class GeolocationService {
     private final String geolocationDashboardBaseURL;
     private final String geolocationSystemBaseURL;
 
-    public GeolocationService(@Value("${geolocation.dashboard.base-url}") String geolocationDashboardBaseURL,
-                       @Value("${geolocation.base-url}") String geolocationBaseURL) {
+    public GeolocationService(
+            @Value("${geolocation.dashboard.base-url}") String geolocationDashboardBaseURL,
+            @Value("${geolocation.base-url}") String geolocationBaseURL) {
         this.geolocationDashboardBaseURL = geolocationDashboardBaseURL;
         this.geolocationSystemBaseURL = geolocationBaseURL;
     }
 
-    public Mono<Boolean> serviceInstanceExistsById(String instanceId) {
-        return Mono.just(geolocationServices.containsKey(instanceId));
+    public Boolean serviceInstanceExistsById(String instanceId) {
+        return geolocationServiceInstances.containsKey(instanceId);
     }
 
-    public Mono<GeolocationServiceInstance> getServiceInstance(String instanceId) {
-        if (geolocationServices.containsKey(instanceId)) {
-            return Mono.just(geolocationServices.get(instanceId));
+    public GeolocationServiceInstance getServiceInstance(String instanceId) {
+        if (geolocationServiceInstances.containsKey(instanceId)) {
+            return geolocationServiceInstances.get(instanceId);
+        } else {
+            throw new GeolocationOpenServiceBrokerException("Service instance does not exist");
         }
-        return Mono.empty();
     }
 
-    public Mono<GeolocationServiceInstance> createServiceInstance(String instanceId, String serviceDefinitionId, String planId) {
+    public GeolocationServiceInstance createServiceInstance(String instanceId, String serviceDefinitionId, String planId) {
         GeolocationServiceInstance geolocationServiceInstance = new GeolocationServiceInstance(
                 instanceId, serviceDefinitionId, planId, geolocationDashboardBaseURL + instanceId);
-        geolocationServices.put(instanceId, geolocationServiceInstance);
-        return Mono.just(geolocationServiceInstance);
+        geolocationServiceInstances.put(instanceId, geolocationServiceInstance);
+        return geolocationServiceInstance;
     }
 
-    public Mono<Void> deleteServiceInstanceById(String instanceId) {
-        geolocationServices.remove(instanceId);
+    public String deleteServiceInstanceById(String instanceId) {
+        geolocationServiceInstances.remove(instanceId);
         geolocationServiceBindings.remove(instanceId);
-        return Mono.empty();
+        return instanceId;
     }
 
-    public Mono<Boolean> serviceBindingExistsById(String instanceId, String bindingId) {
-        return Mono.just(geolocationServiceBindings.containsKey(instanceId) &&
-                geolocationServiceBindings.get(instanceId).getBindingId().equalsIgnoreCase(bindingId));
+    public Boolean serviceBindingExistsById(String instanceId, String bindingId) {
+        return geolocationServiceBindings.containsKey(instanceId) &&
+                geolocationServiceBindings.get(instanceId).getBindingId().equalsIgnoreCase(bindingId);
     }
 
-    public Mono<GeolocationServiceBinding> getServiceBinding(String instanceId, String bindingId) {
-        if (geolocationServiceBindings.containsKey(instanceId) &&
-                geolocationServiceBindings.get(instanceId).getBindingId().equalsIgnoreCase(bindingId)) {
-            return Mono.just(geolocationServiceBindings.get(instanceId));
+    public GeolocationServiceBinding getServiceBinding(String instanceId) {
+        return geolocationServiceBindings.get(instanceId);
+    }
+
+    public GeolocationServiceBinding createServiceBinding(String instanceId, String bindingId) {
+        Boolean serviceInstanceExists = this.serviceInstanceExistsById(instanceId);
+        if (serviceInstanceExists) {
+            GeolocationServiceBinding geolocationServiceBinding =
+                    new GeolocationServiceBinding(bindingId, buildCredentials(instanceId, bindingId));
+            geolocationServiceBindings.put(instanceId, geolocationServiceBinding);
+            return geolocationServiceBinding;
+        } else {
+            throw new GeolocationOpenServiceBrokerException("Service instance does not exist");
         }
-        return Mono.empty();
-    }
-
-    public Mono<GeolocationServiceBinding> createServiceBinding(String instanceId, String bindingId) {
-        return this.serviceInstanceExistsById(instanceId)
-                .flatMap(exists -> {
-                    if (exists) {
-                        GeolocationServiceBinding geolocationServiceBinding =
-                                new GeolocationServiceBinding(bindingId, buildCredentials(instanceId, bindingId));
-                        geolocationServiceBindings.put(instanceId, geolocationServiceBinding);
-                        return Mono.just(geolocationServiceBinding);
-                    } else {
-                        return Mono.empty();
-                    }
-                });
     }
 
     private Map<String, Object> buildCredentials(String instanceId, String bindingId) {
@@ -91,8 +88,7 @@ public class GeolocationService {
         return credentials;
     }
 
-    public Mono<Void> deleteServiceBinding(String instanceId) {
+    public void deleteServiceBinding(String instanceId) {
         geolocationServiceBindings.remove(instanceId);
-        return Mono.empty();
     }
 }

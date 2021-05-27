@@ -1,11 +1,11 @@
-package com.example.geolocationopenservicebroker.geolocation;
+package com.example.geolocationopenservicebroker.model;
 
 import java.util.Map;
 
 public class GeolocationServiceBinding {
 
-    private String bindingId;
-    private Map<String, Object> credentials;
+    private final String bindingId;
+    private final Map<String, Object> credentials;
 
     public GeolocationServiceBinding(String bindingId, Map<String, Object> credentials) {
         this.bindingId = bindingId;

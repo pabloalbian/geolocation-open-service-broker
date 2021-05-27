@@ -1,10 +1,10 @@
-package com.example.geolocationopenservicebroker.geolocation;
+package com.example.geolocationopenservicebroker.model;
 
 public class GeolocationServiceInstance {
-    private String instanceId;
-    private String serviceDefinitionId;
-    private String planId;
-    private String dashboardUrl;
+    private final String instanceId;
+    private final String serviceDefinitionId;
+    private final String planId;
+    private final String dashboardUrl;
 
     public GeolocationServiceInstance(String instanceId, String serviceDefinitionId, String planId, String dashboardUrl) {
         this.instanceId = instanceId;
