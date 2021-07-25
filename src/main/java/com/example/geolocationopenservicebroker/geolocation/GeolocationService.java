@@ -13,12 +13,15 @@ import java.util.UUID;
 public class GeolocationService {
 
     private Map<String, GeolocationServiceInstance> geolocationServiceInstances = new HashMap<>() {{
-        put("526387f9-bea6-4900-864a-7a82145d9082", new GeolocationServiceInstance(
+        put(
                 "526387f9-bea6-4900-864a-7a82145d9082",
-                "6ca20b8a-a182-48a6-ab8e-bc462a2af1d1",
-                "f5e235c5-aaed-44e1-aaea-5c7bac221294",
-                "mockDashboardUrl.com/"
-        ));
+                GeolocationServiceInstance.builder()
+                        .instanceId("526387f9-bea6-4900-864a-7a82145d9082")
+                        .serviceDefinitionId("6ca20b8a-a182-48a6-ab8e-bc462a2af1d1")
+                        .planId("f5e235c5-aaed-44e1-aaea-5c7bac221294")
+                        .dashboardUrl("mockDashboardUrl.com/")
+                        .build()
+        );
     }};
 
     private Map<String, GeolocationServiceBinding> geolocationServiceBindings = new HashMap<>();
@@ -47,8 +50,14 @@ public class GeolocationService {
     }
 
     public GeolocationServiceInstance createServiceInstance(String instanceId, String serviceDefinitionId, String planId) {
-        GeolocationServiceInstance geolocationServiceInstance = new GeolocationServiceInstance(
-                instanceId, serviceDefinitionId, planId, geolocationDashboardBaseURL + instanceId);
+        GeolocationServiceInstance geolocationServiceInstance = GeolocationServiceInstance.builder()
+                .instanceId(instanceId)
+                .serviceDefinitionId(serviceDefinitionId)
+                .planId(planId)
+                .dashboardUrl(geolocationDashboardBaseURL + instanceId)
+                .build();
+
+
         geolocationServiceInstances.put(instanceId, geolocationServiceInstance);
         return geolocationServiceInstance;
     }
@@ -71,8 +80,10 @@ public class GeolocationService {
     public GeolocationServiceBinding createServiceBinding(String instanceId, String bindingId) {
         Boolean serviceInstanceExists = this.serviceInstanceExistsById(instanceId);
         if (serviceInstanceExists) {
-            GeolocationServiceBinding geolocationServiceBinding =
-                    new GeolocationServiceBinding(bindingId, buildCredentials(instanceId, bindingId));
+            GeolocationServiceBinding geolocationServiceBinding = GeolocationServiceBinding.builder()
+                    .bindingId(bindingId)
+                    .credentials(buildCredentials(instanceId, bindingId))
+                    .build();
             geolocationServiceBindings.put(instanceId, geolocationServiceBinding);
             return geolocationServiceBinding;
         } else {

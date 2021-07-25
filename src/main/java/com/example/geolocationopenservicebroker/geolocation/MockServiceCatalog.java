@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.Collections;
 
 @Component
 public class MockServiceCatalog {
@@ -18,26 +19,24 @@ public class MockServiceCatalog {
                 .id("examplePlanId")
                 .name("geolocation-basic-plan")
                 .description("Geolocation Basic Plan")
-                .maintenanceInfo(new MaintenanceInfo("0.0.1", "First version"))
+                .maintenance_info(MaintenanceInfo.builder().version("0.0.1").description("First version").build())
                 .bindable(true)
-                .maximumPollingDuration(1000)
-                .metadata("displayName", "geolocation-service-basic-plan")
-                .metadata("longDescription", "Coordinates and geolocation provider service")
-                .plan_updateable(true)
+                .maximum_polling_duration(1000)
+                .metadata(Collections.singletonMap("displayName", "geolocation-service-basic-plan"))
+                .metadata(Collections.singletonMap("longDescription", "Coordinates and geolocation provider service"))
+                .plan_updatable(true)
                 .free(true)
                 .build();
 
-        ServiceDefinition serviceDefinition = new ServiceDefinition(
-                "exampleServiceDefinitionId",
-                "geolocation-service",
-                "Geolocation Service",
-                true,
-                Arrays.asList("geolocation", "service"),
-                Arrays.asList(geolocationBasicPlan)
-        );
+        ServiceDefinition serviceDefinition = ServiceDefinition.builder()
+                .id("exampleServiceDefinitionId")
+                .name("geolocation-service")
+                .description("Geolocation Service")
+                .bindable(true)
+                .tags(Arrays.asList("geolocation", "service"))
+                .plans(Collections.singletonList(geolocationBasicPlan))
+                .build();
 
-        return new Catalog(
-                Arrays.asList(serviceDefinition)
-        );
+        return Catalog.builder().serviceDefinitions(Collections.singletonList(serviceDefinition)).build();
     }
 }

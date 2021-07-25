@@ -1,20 +1,18 @@
 package com.example.geolocationopenservicebroker.service;
 
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceRequestDto;
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceResponseDto;
-import com.example.geolocationopenservicebroker.api.dto.DeleteServiceInstanceRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.CreateServiceInstanceRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.CreateServiceInstanceResponseDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.DeleteServiceInstanceRequestDto;
 import com.example.geolocationopenservicebroker.geolocation.GeolocationService;
 import com.example.geolocationopenservicebroker.model.GeolocationServiceInstance;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
 public class GeolocationServiceInstanceService {
 
     private final GeolocationService geolocationService;
-
-    public GeolocationServiceInstanceService(GeolocationService geolocationService) {
-        this.geolocationService = geolocationService;
-    }
 
     public CreateServiceInstanceResponseDto createServiceInstance(CreateServiceInstanceRequestDto request) {
         Boolean serviceInstanceExists = geolocationService.serviceInstanceExistsById(request.getServiceInstanceId());
@@ -23,18 +21,19 @@ public class GeolocationServiceInstanceService {
             GeolocationServiceInstance existingServiceBinding = geolocationService.getServiceInstance(
                     request.getServiceInstanceId()
             );
-            return new CreateServiceInstanceResponseDto(
-                    existingServiceBinding.getDashboardUrl(),
-                    true
-            );
+
+            return CreateServiceInstanceResponseDto.builder()
+                    .dashboardUrl(existingServiceBinding.getDashboardUrl())
+                    .instanceExisted(true)
+                    .build();
         } else {
             GeolocationServiceInstance createdServiceInstance = geolocationService.createServiceInstance(
                     request.getServiceInstanceId(), request.getServiceDefinitionId(), request.getPlanId());
 
-            return new CreateServiceInstanceResponseDto(
-                    createdServiceInstance.getDashboardUrl(),
-                    false
-            );
+            return CreateServiceInstanceResponseDto.builder()
+                    .dashboardUrl(createdServiceInstance.getDashboardUrl())
+                    .instanceExisted(false)
+                    .build();
         }
     }
 

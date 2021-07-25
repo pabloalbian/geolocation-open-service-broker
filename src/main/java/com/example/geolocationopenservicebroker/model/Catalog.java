@@ -1,28 +1,20 @@
 package com.example.geolocationopenservicebroker.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.validation.constraints.NotEmpty;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+@Builder
+@Data
 public class Catalog {
     @NotEmpty
     @JsonProperty("services")
     private final List<ServiceDefinition> serviceDefinitions;
-
-    public Catalog() {
-        this(new ArrayList());
-    }
-
-    public Catalog(List<ServiceDefinition> serviceDefinitions) {
-        this.serviceDefinitions = serviceDefinitions;
-    }
-
-    public List<ServiceDefinition> getServiceDefinitions() {
-        return this.serviceDefinitions;
-    }
 
     public final boolean equals(Object o) {
         if (this == o) {

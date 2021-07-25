@@ -1,8 +1,8 @@
 package com.example.geolocationopenservicebroker.api;
 
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceBindingRequestDto;
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceBindingResponseDto;
-import com.example.geolocationopenservicebroker.api.dto.DeleteServiceInstanceBindingRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingResponseDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.DeleteServiceInstanceBindingRequestDto;
 import com.example.geolocationopenservicebroker.service.GeolocationServiceInstanceBindingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -54,12 +54,14 @@ public class ServiceInstanceBindingRestController {
             return new ResponseEntity<>(HttpStatus.GONE);
         }
 
-        serviceInstanceBindingService.deleteServiceInstanceBinding(new DeleteServiceInstanceBindingRequestDto(
-                serviceInstanceId,
-                bindingId,
-                serviceDefinitionId,
-                planId
-        ));
+        serviceInstanceBindingService.deleteServiceInstanceBinding(
+                DeleteServiceInstanceBindingRequestDto.builder()
+                        .serviceInstanceId(serviceInstanceId)
+                        .bindingId(bindingId)
+                        .serviceDefinitionId(serviceDefinitionId)
+                        .planId(planId)
+                        .build()
+        );
 
         return ResponseEntity.ok().build();
     }

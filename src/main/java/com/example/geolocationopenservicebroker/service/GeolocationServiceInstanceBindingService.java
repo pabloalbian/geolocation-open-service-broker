@@ -1,8 +1,8 @@
 package com.example.geolocationopenservicebroker.service;
 
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceBindingRequestDto;
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceBindingResponseDto;
-import com.example.geolocationopenservicebroker.api.dto.DeleteServiceInstanceBindingRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingResponseDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.DeleteServiceInstanceBindingRequestDto;
 import com.example.geolocationopenservicebroker.geolocation.GeolocationService;
 import com.example.geolocationopenservicebroker.model.GeolocationServiceBinding;
 import org.springframework.stereotype.Service;
@@ -27,21 +27,22 @@ public class GeolocationServiceInstanceBindingService {
             GeolocationServiceBinding existingBinding =
                     geolocationService.getServiceBinding(request.getServiceInstanceId());
 
-            return new CreateServiceInstanceBindingResponseDto(
-                    existingBinding.getCredentials(), true
-            );
+            return CreateServiceInstanceBindingResponseDto.builder()
+                    .credentials(existingBinding.getCredentials())
+                    .bindingExisted(true)
+                    .build();
         } else {
             GeolocationServiceBinding geolocationServiceBinding = geolocationService.createServiceBinding(
                     request.getServiceInstanceId(), request.getBindingId());
 
-            return new CreateServiceInstanceBindingResponseDto(
-                    geolocationServiceBinding.getCredentials(), false
-            );
+            return CreateServiceInstanceBindingResponseDto.builder()
+                    .credentials(geolocationServiceBinding.getCredentials())
+                    .bindingExisted(false)
+                    .build();
         }
     }
 
-    public void deleteServiceInstanceBinding(
-            DeleteServiceInstanceBindingRequestDto request) {
+    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequestDto request) {
         Boolean serviceBindingExists = geolocationService.serviceBindingExistsById(
                 request.getServiceInstanceId(),
                 request.getBindingId()
@@ -49,7 +50,6 @@ public class GeolocationServiceInstanceBindingService {
 
         if (serviceBindingExists) {
             geolocationService.deleteServiceBinding(request.getServiceInstanceId());
-        } else {
         }
     }
 }

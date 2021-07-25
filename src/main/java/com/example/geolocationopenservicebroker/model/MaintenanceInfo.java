@@ -1,9 +1,13 @@
 package com.example.geolocationopenservicebroker.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
+import lombok.Data;
 
 import javax.validation.constraints.NotNull;
 
+@Builder
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class MaintenanceInfo {
 
@@ -11,17 +15,4 @@ public class MaintenanceInfo {
     private final String version;
 
     private final String description;
-
-    public MaintenanceInfo(String version, String description) {
-        this.version = version;
-        this.description = description;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public String getDescription() {
-        return description;
-    }
 }

@@ -1,8 +1,8 @@
 package com.example.geolocationopenservicebroker.api;
 
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceRequestDto;
-import com.example.geolocationopenservicebroker.api.dto.CreateServiceInstanceResponseDto;
-import com.example.geolocationopenservicebroker.api.dto.DeleteServiceInstanceRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.CreateServiceInstanceRequestDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.CreateServiceInstanceResponseDto;
+import com.example.geolocationopenservicebroker.api.dto.serviceinstance.DeleteServiceInstanceRequestDto;
 import com.example.geolocationopenservicebroker.service.GeolocationServiceInstanceService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -45,11 +45,11 @@ public class ServiceInstanceRestController {
             @RequestParam("plan_id") String planId
     ) {
         String deletedServiceInstanceId = serviceInstanceService.deleteServiceInstance(
-                new DeleteServiceInstanceRequestDto(
-                        serviceInstanceId,
-                        serviceDefinitionId,
-                        planId
-                )
+                DeleteServiceInstanceRequestDto.builder()
+                        .serviceInstanceId(serviceInstanceId)
+                        .serviceDefinitionId(serviceDefinitionId)
+                        .planId(planId)
+                        .build()
         );
 
         if (deletedServiceInstanceId == null) {

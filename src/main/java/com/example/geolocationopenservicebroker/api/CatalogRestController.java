@@ -13,7 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 public class CatalogRestController {
@@ -26,44 +27,52 @@ public class CatalogRestController {
 
     @GetMapping("/v2/catalog")
     public ResponseEntity<CatalogResponseDto> getCatalog() {
-        Catalog catalog = catalogService.getCatalog();
-        ServiceDefinition serviceDefinition = catalog.getServiceDefinitions().get(0);
-        Plan plan = serviceDefinition.getPlans().get(0);
+        Catalog catalog = catalogService.getMockServiceCatalog().mockCatalog();
 
-        // Todo: Implement mapping in independent methods
         CatalogResponseDto response = CatalogResponseDto.builder()
                 .serviceDefinitions(
-                        Arrays.asList(
-                                ServiceDefinitionDto.builder()
-                                        .id(serviceDefinition.getId())
-                                        .description(serviceDefinition.getDescription())
-                                        .name(serviceDefinition.getName())
-                                        .plans(
-                                                Arrays.asList(
-                                                        PlanDto.builder()
-                                                                .id(plan.getId())
-                                                                .name(plan.getName())
-                                                                .bindable(plan.isBindable())
-                                                                .free(plan.isFree())
-                                                                .description(plan.getDescription())
-                                                                .metadata(plan.getMetadata())
-                                                                .maintenance_info(
-                                                                        MaintenanceInfoDto.builder()
-                                                                                .description(plan.getMaintenance_info().getDescription())
-                                                                                .version(plan.getMaintenance_info().getVersion())
-                                                                                .build()
-                                                                )
-                                                                .maximum_polling_duration(plan.getMaximum_polling_duration())
-                                                                .plan_updateable(plan.isplan_updateable())
-                                                                .build()
-                                                )
-                                        )
-                                        .bindable(serviceDefinition.isBindable())
-                                        .tags(serviceDefinition.getTags())
-                                        .build()
-                        )
-                ).build();
+                        mapServiceDefinitionsToServiceDefinitionDtos(catalog.getServiceDefinitions())
+                )
+                .build();
 
         return ResponseEntity.ok().body(response);
+    }
+
+    private List<ServiceDefinitionDto> mapServiceDefinitionsToServiceDefinitionDtos(
+            List<ServiceDefinition> serviceDefinitions
+    ) {
+        return serviceDefinitions.stream().map(serviceDefinition ->
+                        ServiceDefinitionDto.builder()
+                                .id(serviceDefinition.getId())
+                                .description(serviceDefinition.getDescription())
+                                .name(serviceDefinition.getName())
+                                .plans(
+                                        mapPlansToPlanDtos(serviceDefinition.getPlans())
+                                )
+                                .bindable(serviceDefinition.isBindable())
+                                .tags(serviceDefinition.getTags())
+                                .build()
+                ).collect(Collectors.toList());
+    }
+
+    private List<PlanDto> mapPlansToPlanDtos(List<Plan> plans) {
+        return plans.stream().map(plan ->
+            PlanDto.builder()
+                    .id(plan.getId())
+                    .name(plan.getName())
+                    .bindable(plan.getBindable())
+                    .free(plan.getFree())
+                    .description(plan.getDescription())
+                    .metadata(plan.getMetadata())
+                    .maintenance_info(
+                            MaintenanceInfoDto.builder()
+                                    .description(plan.getMaintenance_info().getDescription())
+                                    .version(plan.getMaintenance_info().getVersion())
+                                    .build()
+                    )
+                    .maximum_polling_duration(plan.getMaximum_polling_duration())
+                    .plan_updateable(plan.getPlan_updatable())
+                    .build()
+        ).collect(Collectors.toList());
     }
 }
