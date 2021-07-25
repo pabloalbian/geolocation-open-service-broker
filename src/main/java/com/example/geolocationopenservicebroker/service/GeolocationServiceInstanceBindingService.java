@@ -17,15 +17,15 @@ public class GeolocationServiceInstanceBindingService {
     }
 
     public CreateServiceInstanceBindingResponseDto createServiceInstanceBinding(
-            CreateServiceInstanceBindingRequestDto request) {
+            String serviceInstanceId, String bindingId) {
         Boolean serviceBindingExists = geolocationService.serviceBindingExistsById(
-                request.getServiceInstanceId(),
-                request.getBindingId()
+                serviceInstanceId,
+                bindingId
         );
 
         if (serviceBindingExists) {
             GeolocationServiceBinding existingBinding =
-                    geolocationService.getServiceBinding(request.getServiceInstanceId());
+                    geolocationService.getServiceBinding(serviceInstanceId);
 
             return CreateServiceInstanceBindingResponseDto.builder()
                     .credentials(existingBinding.getCredentials())
@@ -33,7 +33,7 @@ public class GeolocationServiceInstanceBindingService {
                     .build();
         } else {
             GeolocationServiceBinding geolocationServiceBinding = geolocationService.createServiceBinding(
-                    request.getServiceInstanceId(), request.getBindingId());
+                    serviceInstanceId, bindingId);
 
             return CreateServiceInstanceBindingResponseDto.builder()
                     .credentials(geolocationServiceBinding.getCredentials())
@@ -42,14 +42,14 @@ public class GeolocationServiceInstanceBindingService {
         }
     }
 
-    public void deleteServiceInstanceBinding(DeleteServiceInstanceBindingRequestDto request) {
+    public void deleteServiceInstanceBinding(String serviceInstanceId, String bindingId) {
         Boolean serviceBindingExists = geolocationService.serviceBindingExistsById(
-                request.getServiceInstanceId(),
-                request.getBindingId()
+                serviceInstanceId,
+                bindingId
         );
 
         if (serviceBindingExists) {
-            geolocationService.deleteServiceBinding(request.getServiceInstanceId());
+            geolocationService.deleteServiceBinding(serviceInstanceId);
         }
     }
 }

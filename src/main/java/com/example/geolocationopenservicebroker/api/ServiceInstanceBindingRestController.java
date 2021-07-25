@@ -2,7 +2,6 @@ package com.example.geolocationopenservicebroker.api;
 
 import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingRequestDto;
 import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.CreateServiceInstanceBindingResponseDto;
-import com.example.geolocationopenservicebroker.api.dto.serviceinstancebinding.DeleteServiceInstanceBindingRequestDto;
 import com.example.geolocationopenservicebroker.service.GeolocationServiceInstanceBindingService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,10 +30,8 @@ public class ServiceInstanceBindingRestController {
             @PathVariable("bindingId") String bindingId,
             @Valid @RequestBody CreateServiceInstanceBindingRequestDto createServiceInstanceBindingRequestDto
     ) {
-        createServiceInstanceBindingRequestDto.setServiceInstanceId(serviceInstanceId);
-        createServiceInstanceBindingRequestDto.setBindingId(bindingId);
         CreateServiceInstanceBindingResponseDto response = serviceInstanceBindingService
-                .createServiceInstanceBinding(createServiceInstanceBindingRequestDto);
+                .createServiceInstanceBinding(serviceInstanceId, bindingId);
 
         if (response.isBindingExisted()) {
             return new ResponseEntity<>(response, HttpStatus.OK);
@@ -54,14 +51,7 @@ public class ServiceInstanceBindingRestController {
             return new ResponseEntity<>(HttpStatus.GONE);
         }
 
-        serviceInstanceBindingService.deleteServiceInstanceBinding(
-                DeleteServiceInstanceBindingRequestDto.builder()
-                        .serviceInstanceId(serviceInstanceId)
-                        .bindingId(bindingId)
-                        .serviceDefinitionId(serviceDefinitionId)
-                        .planId(planId)
-                        .build()
-        );
+        serviceInstanceBindingService.deleteServiceInstanceBinding(serviceInstanceId, bindingId);
 
         return ResponseEntity.ok().build();
     }
